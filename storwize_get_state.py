@@ -114,6 +114,7 @@ def advanced_info_of_resource(resource, needed_attributes, storwize_connection, 
 		sys.exit("1100")
 	else:
 		attributes_of_resource = stdout.read() # Получили расширенные атрибуты в виде строки (variable contain advanced attributes in string)
+		attributes_of_resource = attributes_of_resource.decode() #-- by shweta
 		dict_of_attributes = {} # Здесь будут храниться расширенные атрибуты ресурса в формате ключ-значение (will contain advanced attributes in key-value)
 		try:
 			for attribute in attributes_of_resource.split('\n'): # Разделил строку и получили список из расшренные атрибутов
@@ -244,9 +245,11 @@ def get_status_resources(storwize_user, storwize_password, storwize_ip, storwize
 
 	try:
 		for resource in list_resources:
+		#	print(resource)
 			stdin, stdout, stderr = storwize_connection.exec_command('svcinfo {0} -delim :'.format(resource))
-
+			
 			if len(stderr.read()) > 0: # Если случились ошибки, запиши их в лог и выйди из скрипта (If errors occur, then write them to log-file and correctyly end of ssh-session)
+				#print("Inside IF")
 				storwize_logger.error("Error Occurs in SSH Command - {0}".format(stderr.read()))
 				storwize_logout(storwize_connection)
 				sys.exit("1100")
@@ -264,6 +267,7 @@ def get_status_resources(storwize_user, storwize_password, storwize_ip, storwize
 						key_real = "real.{0}.[{1}]".format(resource, one_object["name"])
 						key_free = "free.{0}.[{1}]".format(resource, one_object["name"])
 						key_total = "total.{0}.[{1}]".format(resource, one_object["name"])
+						#print(key_total)
 
 						state_resources.append("%s %s %s %s" % (storage_name, key_health, timestampnow, convert_text_to_numeric(one_object["status"])))
 						state_resources.append("%s %s %s %s" % (storage_name, key_overallocation, timestampnow, one_object["overallocation"]))
